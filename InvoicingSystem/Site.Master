@@ -1,0 +1,36 @@
+﻿<%@ Master Language="C#" CodeBehind="Site.Master.cs" Inherits="InvoicingSystem.SiteMaster" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%--
+        The stylesheet and the javascript files can also be downloaded and added to the project's Scripts and Styles folder.
+        The reference should then point to the local path.
+        This will let us manage the code locally.
+    --%>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="~/Styles/Global.css" />
+    <title>Invoicing System</title>
+
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="container jumbotron text-center">
+            <nav class="navbar navbar-dark" style="background-color: rgba(60,152,201,0.98)">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Invoicing System</a>
+                </div>
+            </nav>
+        </div>
+        <br />
+        <div class="container">
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+    </form>
+</body>
+</html>

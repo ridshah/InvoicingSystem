@@ -1,0 +1,8 @@
+﻿td.details-control {
+    background-color: grey;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background-color: gainsboro;
+}
