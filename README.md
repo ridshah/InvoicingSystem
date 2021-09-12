@@ -13,4 +13,5 @@
 1. Download the project from GitHub.
 2. Unzip the project.
 3. Open the .csproj file using Visual Studio
-4. Click on the Run icon or press F5
+4. Restore NuGet packages if missing
+5. Build the solution and click on the Run icon or press F5
