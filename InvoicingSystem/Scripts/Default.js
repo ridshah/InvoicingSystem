@@ -25,6 +25,8 @@ function PayInvoice(ele) {
             LoadTable();
         },
         error: function (err) {
+            //Handle error here
+            location.href = "Error.aspx";
         },
     });
 }
@@ -51,6 +53,8 @@ function Details(ele) {
             }
         },
         error: function (err) {
+            //Handle error here
+            location.href = "Error.aspx";
         },
     });
 }

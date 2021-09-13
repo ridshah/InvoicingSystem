@@ -43,7 +43,7 @@ namespace InvoicingSystem.Models
         {
             get;
             set;
-        }
+        } = DateTime.Now;
 
 
         public virtual Invoice Invoice { get; set; }

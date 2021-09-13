@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Services;
 using System.Web.UI;
@@ -64,15 +65,15 @@ namespace InvoicingSystem
                     "<td>" + inv.Invoice_Amount + "</td>" + 
                     "<td>" + inv.Invoice_Amount_Plus_VAT + "</td>" + 
                     "<td>" + inv.VAT_Rate + "</td>" +
-                    "<td>" + inv.Invoice_Status.ToUpper() + "</td>" +
+                    "<td>" + (!string.IsNullOrEmpty(inv.Invoice_Status) ? inv.Invoice_Status.ToUpper() : "") + "</td>" +
                     "<td>" + inv.Invoice_Date?.Date.ToShortDateString() + "</td>";
-                if (inv.Invoice_Status == Invoice_Status_Enum.unpaid.ToString())
+                if (inv.Invoice_Status == Invoice_Status_Enum.paid.ToString())
                 {
-                    htmltable += "<td><input type='submit' value='Pay Invoice' onclick = 'PayInvoice(this);return false;' data-value ='" + inv.Id + "' /></td>";
+                    htmltable += "<td><input type='submit' value='Unpay Invoice' onclick = 'PayInvoice(this);return false;' data-value ='" + inv.Id + "' /></td>";
                 }
                 else
                 {
-                    htmltable += "<td><input type='submit' value='Unpay Invoice' onclick = 'PayInvoice(this);return false;' data-value ='" + inv.Id + "' /></td>";
+                    htmltable += "<td><input type='submit' value='Pay Invoice' onclick = 'PayInvoice(this);return false;' data-value ='" + inv.Id + "' /></td>";
                 }
                 htmltable += "</tr>";
 
@@ -113,29 +114,40 @@ namespace InvoicingSystem
         {
             InvoicingSystemContext context = new InvoicingSystemContext();
             InvoiceList = context.Invoices.ToList();
-            using (var stream = new MemoryStream())
+            try
             {
-                using (var writer = new StreamWriter(stream))
+                using (var stream = new MemoryStream())
                 {
-                    writer.Write("Invoice ID,Company Name,Invoice Amount");
-                    writer.WriteLine();
-                    if (InvoiceList.Count > 0)
+                    using (var writer = new StreamWriter(stream))
                     {
-                        for (int i = 0; i < InvoiceList.Count(); i++)
+                        writer.Write("Invoice ID,Company Name,Invoice Amount");
+                        writer.WriteLine();
+                        if (InvoiceList.Count > 0)
                         {
-                            writer.Write(InvoiceList[i].Id + ",");
-                            writer.Write("\"" + InvoiceList[i].Client + "\"" + ",");
-                            writer.Write(InvoiceList[i].Invoice_Amount.ToString() + ",");
-                            writer.WriteLine();
+                            for (int i = 0; i < InvoiceList.Count(); i++)
+                            {
+                                writer.Write(InvoiceList[i].Id + ",");
+                                writer.Write("\"" + InvoiceList[i].Client + "\"" + ",");
+                                writer.Write(InvoiceList[i].Invoice_Amount + ",");
+                                writer.WriteLine();
+                            }
                         }
                     }
+                    string saveAsFileName = "Invoice.csv";
+                    Response.ContentType = "text/comma-seperated-values";
+                    Response.AddHeader("Content-Disposition", string.Format("attachment;filename={0}", saveAsFileName));
+                    Response.Clear();
+                    Response.BinaryWrite(stream.GetBuffer());
+                    Response.End();
                 }
-                string saveAsFileName = "Invoice.csv";
-                Response.ContentType = "text/comma-seperated-values";
-                Response.AddHeader("Content-Disposition", string.Format("attachment;filename={0}", saveAsFileName));
-                Response.Clear();
-                Response.BinaryWrite(stream.GetBuffer());
-                Response.End();
+            }
+            catch (ThreadAbortException ex)
+            {
+
+            }
+            catch (Exception ex)
+            {
+                Response.Redirect("~/Error.aspx");
             }
         }
 
@@ -157,7 +169,7 @@ namespace InvoicingSystem
                             for (int i = 0; i < InvoiceList.Count(); i++)
                             {
                                 writer.Write("\"" + InvoiceList[i].Client + "\"" + ",");
-                                writer.Write(InvoiceList[i].Invoice_Amount.ToString() + ",");
+                                writer.Write(InvoiceList[i].Invoice_Amount + ",");
                                 if (InvoiceList[i].Invoice_Status == Invoice_Status_Enum.paid.ToString())
                                 {
                                     writer.Write(InvoiceList[i].Invoice_Amount_Plus_VAT.ToString() + ",");
@@ -168,7 +180,7 @@ namespace InvoicingSystem
                                 }
                                 if (InvoiceList[i].Invoice_Status == Invoice_Status_Enum.unpaid.ToString())
                                 {
-                                    writer.Write(InvoiceList[i].Invoice_Amount_Plus_VAT.ToString() + ",");
+                                    writer.Write(InvoiceList[i].Invoice_Amount_Plus_VAT + ",");
                                 }
                                 else
                                 {
@@ -186,11 +198,14 @@ namespace InvoicingSystem
                     Response.End();
                 }
             }
-            catch (Exception)
+            catch(ThreadAbortException ex)
+            {
+
+            }
+            catch (Exception ex)
             {
                 Response.Redirect("~/Error.aspx");
             }
-            
         }
 
         //Web Method to set the payment status of each invoice via the interface to paid / unpaid
@@ -211,6 +226,10 @@ namespace InvoicingSystem
                 else if(invoice.Invoice_Status == Invoice_Status_Enum.paid.ToString())
                 {
                     invoice.Invoice_Status = Invoice_Status_Enum.unpaid.ToString();
+                }
+                else if (string.IsNullOrEmpty(invoice.Invoice_Status))
+                {
+                    invoice.Invoice_Status = Invoice_Status_Enum.paid.ToString();
                 }
                 context.SaveChanges();
             }

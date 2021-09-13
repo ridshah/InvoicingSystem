@@ -62,7 +62,7 @@ namespace InvoicingSystem.Models
         public string Invoice_Status
         {
             get { return this._invoice_status; }
-            set { this._invoice_status = GetEnumValue<Invoice_Status_Enum>(value).ToString(); }
+            set { this._invoice_status = !string.IsNullOrEmpty(value) ? GetEnumValue<Invoice_Status_Enum>(value).ToString() : null; }
         }
 
         [Column("invoice_date", TypeName = "date")]
@@ -76,7 +76,7 @@ namespace InvoicingSystem.Models
         {
             get;
             set;
-        }
+        } = DateTime.Now;
 
         public virtual ICollection<Invoice_Item> Invoice_Items 
         { 
